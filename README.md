@@ -33,7 +33,17 @@ $wgOAuth2Client['configuration']['api_endpoint']           = ''; // URL to fetch
 $wgOAuth2Client['configuration']['redirect_uri']           = ''; // URL for OAuth2 server to redirect to
 
 $wgOAuth2Client['configuration']['username'] = 'username'; // JSON path to username
+$wgOAuth2Client['configuration']['realname'] = 'name'; // JSON path to realname
 $wgOAuth2Client['configuration']['email'] = 'email'; // JSON path to email
+
+// some custom settings
+
+// an array of units, whose members may access the wiki
+$wgOAuth2Client['configuration']['unit'] = ['7ad19280-a421-468b-a8c5-6066c23760f1', 'dcf76af4-216d-498a-9c0b-d41b16a68e59'];
+
+// a scope's host name for the wiki service
+// used to bind groups automatically, using the scope mechanism for the wiki service
+$wgOAuth2Client['configuration']['scope_prefix'] = 'kb.pectopah.name';
 ```
 
 The JSON path should be set to point to the appropriate attributes in the JSON.
