@@ -173,14 +173,38 @@ class SpecialOAuth2Client extends SpecialPage {
 		}
 
 		$username = JsonHelper::extractValue($response, $wgOAuth2Client['configuration']['username']);
+		$realname = $username;
 		$email =  JsonHelper::extractValue($response, $wgOAuth2Client['configuration']['email']);
+		
+		if (!empty($wgOAuth2Client['configuration']['realname'])) {
+			$realname = JsonHelper::extractValue($response, $wgOAuth2Client['configuration']['realname']);
+		}
+
+		if (!empty($wgOAuth2Client['configuration']['unit'])) {
+			$unit = JsonHelper::extractValue($response, "unit");
+
+			if (!$unit) {
+				throw new MWException('Access denied');
+			}
+
+			if (!is_array($wgOAuth2Client['configuration']['unit'])) {
+				throw new MWException('unit configuration field should be an array');
+			}
+
+			$uid = $unit['uid'];
+			if (!$uid || !array_search($uid, $wgOAuth2Client['configuration']['unit'])) {
+				throw new MWException('Access denied');
+			}
+		}
+		
 		Hooks::run("OAuth2ClientBeforeUserSave", [&$username, &$email, $response]);
 		$user = User::newFromName($username, 'creatable');
 		if (!$user) {
 			throw new MWException('Could not create user with username:' . $username);
 			die();
 		}
-		$user->setRealName($username);
+
+		$user->setRealName($realname);
 		$user->setEmail($email);
 		$user->load();
 		if ( !( $user instanceof User && $user->getId() ) ) {
@@ -191,6 +215,19 @@ class SpecialOAuth2Client extends SpecialPage {
 			$user->confirmEmail();
 		}
 		$user->setToken();
+		
+		$scope = JsonHelper::extractValue($response, 'scope');
+
+		if ($scope && $wgOAuth2Client['configuration']['scope_prefix']) {
+			foreach($scope as $s => $val) {
+				$match = strpos($val, $wgOAuth2Client['configuration']['scope_prefix']);
+				if ($match !== false) {
+					$group = str_replace($wgOAuth2Client['configuration']['scope_prefix'].'/', '', $val);
+					var_dump($group);
+					$user->addGroup($group);
+				}
+			}
+		};
 
 		// Setup the session
 		$wgRequest->getSession()->persist();
