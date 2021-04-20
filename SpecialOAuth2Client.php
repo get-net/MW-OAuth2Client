@@ -192,7 +192,23 @@ class SpecialOAuth2Client extends SpecialPage {
 			}
 
 			$uid = $unit['uid'];
-			if (!$uid || !array_search($uid, $wgOAuth2Client['configuration']['unit'])) {
+
+			if (!$uid || !in_array($uid, $wgOAuth2Client['configuration']['unit'])) {
+				if (!empty($wgOAuth2Client['configuration']['role_uri'])) {
+					$current_query = [];
+					parse_str($_SERVER['QUERY_STRING'], $current_query);
+					
+					$query_array = [
+						'client_id' => $wgOAuth2Client['client']['id'],
+						'code' => $current_query['code'],
+						'state' => $current_query['state'],
+						'redirect_uri' => $wgOAuth2Client['configuration']['redirect_uri']
+					];
+
+					$redirect_to = $wgOAuth2Client['configuration']['role_uri'] . '?' . http_build_query($query_array);
+					header("Location: " . $redirect_to, true, 302);
+					exit();
+				}
 				throw new MWException('Access denied');
 			}
 		}
@@ -223,7 +239,6 @@ class SpecialOAuth2Client extends SpecialPage {
 				$match = strpos($val, $wgOAuth2Client['configuration']['scope_prefix']);
 				if ($match !== false) {
 					$group = str_replace($wgOAuth2Client['configuration']['scope_prefix'].'/', '', $val);
-					var_dump($group);
 					$user->addGroup($group);
 				}
 			}

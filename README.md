@@ -31,6 +31,7 @@ $wgOAuth2Client['configuration']['authorize_endpoint']     = ''; // Authorizatio
 $wgOAuth2Client['configuration']['access_token_endpoint']  = ''; // Token URL
 $wgOAuth2Client['configuration']['api_endpoint']           = ''; // URL to fetch user JSON
 $wgOAuth2Client['configuration']['redirect_uri']           = ''; // URL for OAuth2 server to redirect to
+$wgOAuth2Client['configuration']['role_uri']               = ''; // URL for role switch
 
 $wgOAuth2Client['configuration']['username'] = 'username'; // JSON path to username
 $wgOAuth2Client['configuration']['realname'] = 'name'; // JSON path to realname
